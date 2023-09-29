@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { QueryConfig } from "pg";
 import { client } from "./database";
+import format from "pg-format";
 
 export const createMovie = async (req: Request, res: Response) => {
   const { name, category, duration, price } = req.body;
@@ -19,3 +20,48 @@ export const createMovie = async (req: Request, res: Response) => {
 
   return res.status(201).json(data.rows[0]);
 };
+
+export const getAllMovies = async (req: Request, res: Response) => {
+  let queryConfig: string | QueryConfig;
+
+  console.log(req.query.category);
+  if (req.query.category) {
+    const search = "%" + req.query.category + "%";
+    queryConfig = format(
+      `SELECT * FROM movies WHERE category ILIKE '%s';`,
+      search
+    );
+    console.log(queryConfig);
+    if (!(await client.query(queryConfig)).rowCount) {
+      await client.query(`SELECT * FROM movies;`);
+    }
+  } else {
+    queryConfig = `SELECT * FROM movies;`;
+  }
+  const data = await client.query(queryConfig);
+  return res.status(200).json(data.rows);
+};
+
+export const getMoviesById = async (req: Request, res: Response) => {
+  return res.status(200).json(res.locals.movies);
+};
+
+export const deleteMovieById = async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  const queryString = `DELETE FROM movies WHERE id = $1;`;
+
+  const queryConfig: QueryConfig = {
+    text: queryString,
+    values: [id],
+  };
+
+  await client.query(queryConfig);
+
+  return res.status(204).json();
+};
+
+// export const updateMovie = async (req: Request, res: Response) => {
+//   const { id } = req.params;
+//   const query = format(`UPDATE movies SET ()`);
+// };
