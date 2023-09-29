@@ -20,8 +20,7 @@ export const createMovie = async (
   };
 
   const data = await client.query(queryConfig);
-  console.log(data);
-
+  
   return res.status(201).json(data.rows[0]);
 };
 
