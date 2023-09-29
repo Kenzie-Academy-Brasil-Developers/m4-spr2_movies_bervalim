@@ -4,6 +4,7 @@ import {
   deleteMovieById,
   getAllMovies,
   getMoviesById,
+  updateMovie,
 } from "../logic";
 import { isMovieNameUnique } from "../middlewares/isMovieNameUnique";
 import { isMovieIdValid } from "../middlewares/isMovieIdValid";
@@ -16,6 +17,6 @@ movieRoutes.get("/", getAllMovies);
 
 movieRoutes.get("/:id", isMovieIdValid, getMoviesById);
 
-movieRoutes.patch("/:id");
+movieRoutes.patch("/:id", isMovieIdValid, isMovieNameUnique, updateMovie);
 
 movieRoutes.delete("/:id", isMovieIdValid, deleteMovieById);

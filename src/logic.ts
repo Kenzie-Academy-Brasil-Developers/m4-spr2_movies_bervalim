@@ -31,10 +31,6 @@ export const getAllMovies = async (req: Request, res: Response) => {
       `SELECT * FROM movies WHERE category ILIKE '%s';`,
       search
     );
-    console.log(queryConfig);
-    if (!(await client.query(queryConfig)).rowCount) {
-      await client.query(`SELECT * FROM movies;`);
-    }
   } else {
     queryConfig = `SELECT * FROM movies;`;
   }
@@ -61,7 +57,16 @@ export const deleteMovieById = async (req: Request, res: Response) => {
   return res.status(204).json();
 };
 
-// export const updateMovie = async (req: Request, res: Response) => {
-//   const { id } = req.params;
-//   const query = format(`UPDATE movies SET ()`);
-// };
+export const updateMovie = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const query = format(
+    `UPDATE movies SET (%I) = ROW(%L) WHERE id = (%L)
+    RETURNING *;`,
+    Object.keys(req.body),
+    Object.values(req.body),
+    id
+  );
+  const data = await client.query(query);
+
+  return res.status(200).json(data.rows[0]);
+};
