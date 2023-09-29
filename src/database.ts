@@ -20,6 +20,8 @@ export const connectDatabase = async () => {
 
 export const createTable = async () => {
   try {
+    const resetQuery = `DROP TABLE IF EXISTS movies;`;
+    await client.query(resetQuery);
     const query = `CREATE TABLE IF NOT EXISTS movies (
       id SERIAL PRIMARY KEY,
       name VARCHAR(50) NOT NULL,
