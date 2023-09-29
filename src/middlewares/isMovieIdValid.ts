@@ -23,6 +23,4 @@ export const isMovieIdValid = async (
 
   res.locals.movies = data.rows[0];
   return next();
-
-  // return res.status(200).json(data.rows[0]);
 };

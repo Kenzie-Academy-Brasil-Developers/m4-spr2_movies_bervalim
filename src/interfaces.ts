@@ -5,3 +5,7 @@ export interface IMovie {
   duration: number;
   price: number;
 }
+
+export type TMovieUPdateData = Partial<
+  Pick<IMovie, "name" | "category" | "duration" | "price">
+>;

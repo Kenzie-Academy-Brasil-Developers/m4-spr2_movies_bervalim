@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { QueryConfig } from "pg";
 import { client } from "./database";
 import format from "pg-format";
+import { TMovieUPdateData } from "./interfaces";
 
 export const createMovie = async (
   req: Request,
@@ -23,33 +24,6 @@ export const createMovie = async (
 
   return res.status(201).json(data.rows[0]);
 };
-
-// export const getAllMovies = async (
-//   req: Request,
-//   res: Response
-// ): Promise<Response> => {
-//   let queryConfig: string | QueryConfig;
-
-//   if (req.query.category) {
-//     const search = "%" + req.query.category + "%";
-//     queryConfig = format(
-//       `SELECT * FROM movies WHERE category ILIKE '%s';`,
-//       search
-//     );
-//   } else {
-//     queryConfig = `SELECT * FROM movies;`;
-//   }
-//   const data = await client.query(queryConfig);
-//   console.log(data.rowCount);
-
-//   if (!data.rowCount) {
-//     const query = `SELECT * FROM movies;`;
-//     const data = await client.query(query);
-//     return res.status(200).json(data.rows);
-//   }
-
-//   return res.status(200).json(data.rows);
-// };
 
 export const getAllMovies = async (
   req: Request,
@@ -103,12 +77,24 @@ export const updateMovie = async (
   req: Request,
   res: Response
 ): Promise<Response> => {
+  let objectData: TMovieUPdateData = {};
+  Object.entries(req.body).forEach(([key, value]) => {
+    if (
+      key === "name" ||
+      key === "category" ||
+      key === "duration" ||
+      key === "price"
+    ) {
+      objectData[key] = value as any;
+    }
+  });
+
   const { id } = req.params;
   const query = format(
     `UPDATE movies SET (%I) = ROW(%L) WHERE id = (%L)
     RETURNING *;`,
-    Object.keys(req.body),
-    Object.values(req.body),
+    Object.keys(objectData),
+    Object.values(objectData),
     id
   );
   const data = await client.query(query);
